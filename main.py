@@ -2,6 +2,9 @@ import random
 from graph.graph import UnDirectedGraph
 
 import itertools
+import time
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def cross_product_solve(G1: UnDirectedGraph):
     # Brute force using itertools cross product
@@ -15,10 +18,8 @@ def cross_product_solve(G1: UnDirectedGraph):
                 color[vertex_list[i]] = p[i]
             if check_graph_color_valid(G1, color):  # Llama a la función con el diccionario de colores
                 print("Brute force valid coloring found:", color)
-                G1.print_graph()
                 print(f"Found a valid coloring with {num_colors} colors using brute force.")
-                stop = True
-                break
+                return num_colors
         if stop:
             break
         
@@ -29,9 +30,9 @@ def backtrack_solve(G1: UnDirectedGraph):
         backtracking_result = color_backtracking(G1, num_colors)
         if backtracking_result:
             print("Backtracking valid coloring found:", backtracking_result)
-            G1.print_graph()
             print(f"Found a valid coloring with {num_colors} colors using backtracking.")
-            break
+            return num_colors
+    return None
 
 def create_random_graph(num_vertices, num_edges):
     graph = UnDirectedGraph()
@@ -82,13 +83,46 @@ def backtrack_valid(g: UnDirectedGraph, i, colors, color):
             return False
     return True
 
+def run_tests():
+    results = []
+    graph_sizes = [(5, 10), (8, 14), (10, 18), (12, 22), (15, 25)]
+
+    for nodes, edges in graph_sizes:
+        G = create_random_graph(nodes, edges)
+        G.print_graph()
+        
+        # Fuerza bruta
+        start_time = time.time()
+        num_colors_brute = cross_product_solve(G)
+        brute_time = time.time() - start_time
+
+        # Backtracking
+        start_time = time.time()
+        num_colors_backtrack = backtrack_solve(G)
+        backtrack_time = time.time() - start_time
+
+        # Guardar resultados
+        results.append({
+            "Nodes": nodes,
+            "Edges": edges,
+            "Colors (Brute Force)": num_colors_brute,
+            "Time (Brute Force)": brute_time,
+            "Colors (Backtracking)": num_colors_backtrack,
+            "Time (Backtracking)": backtrack_time
+        })
+
+    df = pd.DataFrame(results)
+    print(df)
+
+    plt.plot(df["Nodes"], df["Time (Brute Force)"], label="Brute Force", marker="o")
+    plt.plot(df["Nodes"], df["Time (Backtracking)"], label="Backtracking", marker="o")
+    plt.xlabel("Number of Nodes")
+    plt.ylabel("Execution Time (s)")
+    plt.title("Execution Time Comparison")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
 if __name__ == '__main__':
-    G1 = create_random_graph(10, 15)
-    G1.print_graph()
-    
-    # Cross product
-    cross_product_solve(G1)
-    
-    # Backtracking
-    backtrack_solve(G1)
+    run_tests()
     
