@@ -3,6 +3,36 @@ from graph.graph import UnDirectedGraph
 
 import itertools
 
+def cross_product_solve(G1: UnDirectedGraph):
+    # Brute force using itertools cross product
+    color = {}
+    vertex_list = list(G1.get_vertices())
+    for num_colors in range(2, len(G1.get_vertices()) + 1):
+        print(f"Trying {num_colors} colors with brute force")
+        stop = False
+        for p in itertools.product(range(num_colors), repeat=len(vertex_list)):
+            for i in range(len(vertex_list)):
+                color[vertex_list[i]] = p[i]
+            if check_graph_color_valid(G1, color):  # Llama a la función con el diccionario de colores
+                print("Brute force valid coloring found:", color)
+                G1.print_graph()
+                print(f"Found a valid coloring with {num_colors} colors using brute force.")
+                stop = True
+                break
+        if stop:
+            break
+        
+def backtrack_solve(G1: UnDirectedGraph):
+    # Backtracking
+    for num_colors in range(2, len(G1.get_vertices()) + 1):
+        print(f"Trying {num_colors} colors with backtracking")
+        backtracking_result = color_backtracking(G1, num_colors)
+        if backtracking_result:
+            print("Backtracking valid coloring found:", backtracking_result)
+            G1.print_graph()
+            print(f"Found a valid coloring with {num_colors} colors using backtracking.")
+            break
+
 def create_random_graph(num_vertices, num_edges):
     graph = UnDirectedGraph()
     for i in range(num_vertices):
@@ -56,30 +86,9 @@ if __name__ == '__main__':
     G1 = create_random_graph(10, 15)
     G1.print_graph()
     
-    # Método de fuerza bruta con itertools
-    color = {}
-    vertex_list = list(G1.get_vertices())
-    for num_colors in range(2, len(G1.get_vertices()) + 1):
-        print(f"Trying {num_colors} colors with brute force")
-        stop = False
-        for p in itertools.product(range(num_colors), repeat=len(vertex_list)):
-            for i in range(len(vertex_list)):
-                color[vertex_list[i]] = p[i]
-            if check_graph_color_valid(G1, color):
-                print("Brute force valid coloring found:", color)
-                G1.print_graph()
-                print(f"Found a valid coloring with {num_colors} colors using brute force.")
-                stop = True
-                break
-        if stop:
-            break
-
-    # Método de backtracking
-    for num_colors in range(2, len(G1.get_vertices()) + 1):
-        print(f"Trying {num_colors} colors with backtracking")
-        backtracking_result = color_backtracking(G1, num_colors)
-        if backtracking_result:
-            print("Backtracking valid coloring found:", backtracking_result)
-            G1.print_graph()
-            print(f"Found a valid coloring with {num_colors} colors using backtracking.")
-            break
+    # Cross product
+    cross_product_solve(G1)
+    
+    # Backtracking
+    backtrack_solve(G1)
+    
